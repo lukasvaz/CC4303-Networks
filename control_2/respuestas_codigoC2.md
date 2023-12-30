@@ -1,0 +1,11 @@
+# Preguntas 
+* **Alumno**:Lukas Vasquez Verdejo
+## P1
+* **Cuando se llama a recv() con buff_size < 16, por ejemplo 10, pero el cliente envía 16 bytes, su función retorna los 10 correctamente. Pero luego cuando se vuelve a llamar a recv(10) para obtener los 6 bytes restantes, quien llama a recv() se queda pegado infinitamente en un recvfrom() y nunca retorna. ¿Cómo lo arreglaría?**
+
+El problema está  en el largo del mensaje (16 bytes).Al ser de este tamaño se tiene  que  en el primer envío de paquete (luego  de anunciar su largo) se reciben por completo los 16 bytes actualizando los bytes restantes a 0 (self.remaining bytes=0, pues  ya se reciben todos en el mensaje).Por  cómo está  implementado el código, se identifica a un paquete inicial (el que anuncia el largo del mensaje)  como aquel un primer paqueteque sus bytes restantes son 0 (pues, si no se esepera nada -> es  un primer mensaje),por lo tanto al enviar  un mensaje  de 16 bytes estos son capturados  en el primer paquete posterior al  inicial  y luego el siguiente paquete será  considerado como inicial ya que los bytes restantes son 0 (como se atrapa  el error  no se cae).Para solucionar esto se debe  cambiar la condición de primer paquete a un indicador (is_first) cualquiera el cual  se actualize  justo antes de rotrnar, de esta manera solo  se consideraran primeros mensajes  los  cuales is_first==True y se pueden seguir ocupando remaining_bytes como se hizo anteriormente. 
+
+## P2
+**[Control de congestión] El problema descrito en la primera pregunta sigue presente en su código de Go-Back N (no se descuenta puntaje por errores por arrastre). La solución que provee, ¿soluciona el problema en el segundo código o debiese agregar algún otro cambio?**
+
+Como la funcion recieve  es la misma que la del codigo anterior (la logica  del recieve  entre stop and wait  y go back n  es la misma) y la congestión de control es  independiente del protocolo de envío (cambia solo el tamaño de la ventana, no los buufers del recieve), la solución que provee es la misma que la del codigo anterior.
